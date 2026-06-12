@@ -218,6 +218,30 @@ def q4_c(df: pd.DataFrame, charts_save_location: str)-> None:
     log.info(f"The Q4-c's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
     #plt.show()
 
+def q5(df: pd.DataFrame, charts_save_location: str)-> None:
+    """ Answering AQ5
+    Monthly temp → pivot_table(month × decade) → 
+    sns.heatmap(cmap='RdYlBu_r', center=0). Use years ≥ 1950.
+    """
+    chart_name = 'AQ5_temp_heatmap.png'
+    temp_m2 = df.copy()
+    temp_m2['date'] = pd.to_datetime(temp_m2['Year'], format='%Y-%m')
+    temp_m2['year'] = temp_m2['date'].dt.year
+    temp_m2['month'] = temp_m2['date'].dt.month
+    temp_m2['decade'] = (temp_m2['year'] // 10) * 10
+    gm = temp_m2[temp_m2['Source']=='GISTEMP']
+    pivot = gm.pivot_table(index='month', columns='decade', values='Mean', aggfunc='mean')
+    pivot.index = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    fig, ax = plt.subplots(figsize=(14, 5))
+    sns.heatmap(pivot[[c for c in pivot.columns if c>=1950]],
+    annot=True, fmt='.2f', cmap='RdYlBu_r', center=0,
+    linewidths=0.3, ax=ax, cbar_kws={'label':'Anomaly (°C)'})
+    ax.set_title('Temperature Anomaly: Month × Decade', fontsize=13)
+    ax.set_xlabel('Decade'); ax.set_ylabel('')
+    plt.savefig(os.path.join(charts_save_location,chart_name), bbox_inches='tight')
+    log.info(f"The Q5's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
+    #plt.show()
+
 
 def main():
     print("This is for session 8: Visualizations")
@@ -230,7 +254,7 @@ def main():
     q4_a(netflix,charts_save_location)
     q4_b(netflix,charts_save_location)
     q4_c(netflix,charts_save_location)
-
+    q5(temp_monthly,charts_save_location)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
