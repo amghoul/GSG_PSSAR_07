@@ -139,6 +139,85 @@ def q3(df: pd.DataFrame, charts_save_location: str)-> None:
     plt.savefig(os.path.join(charts_save_location,'AQ3.png'), dpi=150, bbox_inches='tight')
     log.info(f"The Q3's chart is saved in {os.path.join(charts_save_location,'AQ3.png')} ")
 
+def q4_a(df: pd.DataFrame, charts_save_location: str)-> None:
+    """ Answering AQ4-a
+    (a) Histogram of movie duration for netflix dataset
+    """
+    chart_name = 'AQ4-a_netflix_movie_duration_histogram.png'
+    movies = df[df['type']=='Movie']
+    movies = movies.dropna(subset=['duration'])
+    movies['duration_min'] = movies['duration'].str.replace(' min','').astype(int)
+    plt.figure(figsize=(10, 6))
+
+    sns.histplot(
+        data=movies, 
+        x='duration_min', 
+        bins=30,            
+        kde=True,           
+        color='crimson',   
+        edgecolor='black'
+    )
+
+    plt.title('Distribution of Netflix Movie Durations', fontsize=14, fontweight='bold', pad=15)
+    plt.xlabel('Duration (Minutes)', fontsize=12)
+    plt.ylabel('Count of Movies', fontsize=12)
+    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+
+    plt.savefig(os.path.join(charts_save_location,chart_name), dpi=300, bbox_inches='tight')
+    log.info(f"The Q4-a's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
+    #plt.show()
+
+def q4_b(df: pd.DataFrame, charts_save_location: str)-> None:
+    """ Answering AQ4-b
+    (b) Top 10 countries (horizontal bar, multi-country split) for netflix dataset
+    """
+    chart_name = 'AQ4-b_netflix_top10_countries.png'
+    countries = (df['country'].dropna()
+    .str.split(', ', expand=True)
+    .stack()
+    .reset_index(drop=True)
+    .rename('country').to_frame())
+    top10 = countries['country'].value_counts().head(10)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    bars = ax.barh(
+    top10.index[::-1],
+    top10.values[::-1],
+    color='#3D6B4F'
+    )
+    ax.bar_label(bars, padding=5, fontsize=10)
+    ax.set_xlabel('Number of Titles', fontsize=11)
+    ax.spines[['top','right','left']].set_visible(False)
+    ax.tick_params(left=False)
+    plt.savefig(os.path.join(charts_save_location,chart_name), dpi=300, bbox_inches='tight')
+    log.info(f"The Q4-b's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
+    #plt.show()
+
+def q4_c(df: pd.DataFrame, charts_save_location: str)-> None:
+    """ Answering AQ4-c
+    (c) Stacked bar 2013–2021. for netflix dataset
+    """
+    chart_name = 'AQ4-c_netflix_stacked_bar.png'
+    df['year_added'] = pd.to_datetime(
+    df['date_added'].str.strip(),
+    errors='coerce').dt.year
+    added = (df[df['year_added'].between(2013,2021)]
+    .groupby(['year_added','type']).size()
+    .reset_index(name='count'))
+    wide = added.pivot(
+    index='year_added', columns='type',
+    values='count').fillna(0)
+    fig, ax = plt.subplots(figsize=(9, 5))
+    wide.plot(kind='bar', stacked=True, ax=ax,
+    color=['#C9A84C','#3D6B4F'],
+    edgecolor='white')
+    ax.set_xlabel('Year'); ax.set_ylabel('Titles Added')
+    ax.tick_params(axis='x', rotation=0)
+    ax.legend(title='Type', frameon=False)
+    ax.spines[['top','right']].set_visible(False)
+    plt.savefig(os.path.join(charts_save_location,chart_name), dpi=300, bbox_inches='tight')
+    log.info(f"The Q4-c's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
+    #plt.show()
+
 
 def main():
     print("This is for session 8: Visualizations")
@@ -148,6 +227,9 @@ def main():
     q1(chess,charts_save_location)
     q2(chess,charts_save_location)
     q3(temp,charts_save_location)
+    q4_a(netflix,charts_save_location)
+    q4_b(netflix,charts_save_location)
+    q4_c(netflix,charts_save_location)
 
 
 if __name__ == "__main__":
