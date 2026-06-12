@@ -106,6 +106,39 @@ def q2(df: pd.DataFrame, charts_save_location: str)-> None:
     log.info(f"The Q2's chart is saved in {os.path.join(charts_save_location,'AQ2.png')} ")
     #plt.show()
 
+def q3(df: pd.DataFrame, charts_save_location: str)-> None:
+    """ Answering Q3
+    GISTEMP annual → line + rolling(10) + fill_between(above/below zero). 
+    Annotate the hottest year. Save at 150 dpi
+    """
+    gistemp = df[df['Source']=='GISTEMP'].copy()
+    gistemp['rolling_10'] = gistemp['Mean'].rolling(10, min_periods=1).mean()
+    fig, ax = plt.subplots(figsize=(12, 5))
+    # Raw annual · 10-year rolling · zero baseline
+    ax.plot(gistemp['Year'], gistemp['Mean'], color='#C9A84C', alpha=0.4, label='Annual')
+    ax.plot(gistemp['Year'], gistemp['rolling_10'], color='#C0392B', linewidth=2.5, label='10yr avg')
+    ax.axhline(y=0, color='grey', linewidth=0.8, linestyle='--')
+    # Shade above/below the baseline
+    ax.fill_between(gistemp['Year'],0,gistemp['Mean'], where=gistemp['Mean']>0, alpha=0.15, color='#C0392B')
+    ax.fill_between(gistemp['Year'],0,gistemp['Mean'], where=gistemp['Mean']<=0, alpha=0.15, color='#3D6B4F')
+
+    ax.set_title('Global Temperature Anomaly 1880–2024', fontsize=13)
+    ax.set_xlabel('Year', fontsize=11)
+    ax.set_ylabel('Anomaly vs 1951–1980 (°C)', fontsize=11)
+    ax.legend(frameon=False, loc='upper left')
+    ax.spines[['top','right']].set_visible(False)
+
+    # Annotation
+    max_mean = gistemp.sort_values(by='Mean', ascending=False)[['Year', 'Mean']].head(1)['Mean'].iloc[0]
+    year_max_mean = gistemp.sort_values(by='Mean', ascending=False)[['Year', 'Mean']].head(1)['Year'].iloc[0]
+    ax.annotate(str(year_max_mean)+':'+ str(max_mean.round(2))+'°C',
+    xy=(year_max_mean, max_mean), xytext=(2000,
+    1.1),
+    arrowprops=dict(arrowstyle='->',
+    color='black'))
+    plt.savefig(os.path.join(charts_save_location,'AQ3.png'), dpi=150, bbox_inches='tight')
+    log.info(f"The Q3's chart is saved in {os.path.join(charts_save_location,'AQ3.png')} ")
+
 
 def main():
     print("This is for session 8: Visualizations")
@@ -114,6 +147,8 @@ def main():
     chess, netflix,temp, temp_monthly = download_load_datasets(csv_save_location)
     q1(chess,charts_save_location)
     q2(chess,charts_save_location)
+    q3(temp,charts_save_location)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
