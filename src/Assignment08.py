@@ -188,6 +188,7 @@ def q4_b(df: pd.DataFrame, charts_save_location: str)-> None:
     ax.set_xlabel('Number of Titles', fontsize=11)
     ax.spines[['top','right','left']].set_visible(False)
     ax.tick_params(left=False)
+    plt.title('Top 10 countries for Netflix dataset', fontsize=14, fontweight='bold', pad=15)
     plt.savefig(os.path.join(charts_save_location,chart_name), dpi=300, bbox_inches='tight')
     log.info(f"The Q4-b's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
     #plt.show()
@@ -206,6 +207,7 @@ def q4_c(df: pd.DataFrame, charts_save_location: str)-> None:
     wide = added.pivot(
     index='year_added', columns='type',
     values='count').fillna(0)
+    wide.index = wide.index.astype(int)
     fig, ax = plt.subplots(figsize=(9, 5))
     wide.plot(kind='bar', stacked=True, ax=ax,
     color=['#C9A84C','#3D6B4F'],
@@ -213,6 +215,7 @@ def q4_c(df: pd.DataFrame, charts_save_location: str)-> None:
     ax.set_xlabel('Year'); ax.set_ylabel('Titles Added')
     ax.tick_params(axis='x', rotation=0)
     ax.legend(title='Type', frameon=False)
+    plt.title('Stacked Movies and TV shows', fontsize=14, fontweight='bold', pad=15)
     ax.spines[['top','right']].set_visible(False)
     plt.savefig(os.path.join(charts_save_location,chart_name), dpi=300, bbox_inches='tight')
     log.info(f"The Q4-c's chart is saved in {os.path.join(charts_save_location,chart_name)} ")
